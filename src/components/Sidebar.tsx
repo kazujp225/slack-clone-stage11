@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { dms } from '@/data/dms'
 import type { Channel } from '@/data/messages'
 
@@ -7,11 +9,27 @@ export type SelectedItem =
 
 type Props = {
   channels: Channel[]
+  joinedChannelIds: Set<string>
+  userId: string | null
+  loading?: boolean
+  error?: string | null
   selectedItem: SelectedItem
   onSelect: (item: SelectedItem) => void
+  onJoin: (channelId: string) => void
+  onLeave: (channelId: string) => void
 }
 
-export function Sidebar({ channels, selectedItem, onSelect }: Props) {
+export function Sidebar({
+  channels,
+  joinedChannelIds,
+  userId,
+  loading,
+  error,
+  selectedItem,
+  onSelect,
+  onJoin,
+  onLeave,
+}: Props) {
   const isSelected = (type: SelectedItem['type'], id: string) =>
     selectedItem.type === type && selectedItem.id === id
 
@@ -24,23 +42,52 @@ export function Sidebar({ channels, selectedItem, onSelect }: Props) {
         <h2 className="px-3 mb-2 text-xs font-semibold uppercase tracking-wide text-white/70">
           チャンネル
         </h2>
+        {loading && (
+          <ul className="space-y-2 px-2">
+            <li><Skeleton className="h-6 w-full bg-white/20" /></li>
+            <li><Skeleton className="h-6 w-3/4 bg-white/20" /></li>
+            <li><Skeleton className="h-6 w-2/3 bg-white/20" /></li>
+          </ul>
+        )}
+        {!loading && error && (
+          <p className="px-3 text-xs text-red-200">{error}</p>
+        )}
+        {!loading && !error && channels.length === 0 && (
+          <p className="px-3 text-xs text-white/70">チャンネルがありません</p>
+        )}
         <ul>
           {channels.map((c) => {
             const selected = isSelected('channel', c.id)
+            const joined = joinedChannelIds.has(c.id)
             return (
-              <li key={c.id}>
+              <li key={c.id} className="flex items-center gap-1 px-1">
                 <button
                   type="button"
                   onClick={() => onSelect({ type: 'channel', id: c.id })}
-                  className={`w-full text-left flex items-center h-8 px-3 rounded text-sm cursor-pointer ${
+                  className={`flex-1 min-w-0 text-left flex items-center h-8 px-2 rounded text-sm cursor-pointer ${
                     selected
                       ? 'bg-[#1264A3] text-white'
                       : 'hover:bg-white/10'
                   }`}
                 >
                   <span className="mr-2">#</span>
-                  {c.name}
+                  <span className="truncate">{c.name}</span>
                 </button>
+                {userId && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    className="h-7 px-2 text-xs flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (joined) onLeave(c.id)
+                      else onJoin(c.id)
+                    }}
+                  >
+                    {joined ? '退出する' : '参加する'}
+                  </Button>
+                )}
               </li>
             )
           })}
