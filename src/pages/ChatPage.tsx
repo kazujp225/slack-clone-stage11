@@ -428,6 +428,8 @@ export function ChatPage() {
           channels={channels}
           joinedChannelIds={joinedChannelIds}
           userId={session?.user.id ?? null}
+          loading={channelsLoading}
+          error={channelsError}
           selectedItem={selectedItem}
           onSelect={handleSelect}
           onJoin={handleJoin}
