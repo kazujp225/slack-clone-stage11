@@ -1,16 +1,17 @@
-import { channels } from '@/data/messages'
 import { dms } from '@/data/dms'
+import type { Channel } from '@/data/messages'
 
 export type SelectedItem =
   | { type: 'channel'; id: string }
   | { type: 'dm'; id: string }
 
 type Props = {
+  channels: Channel[]
   selectedItem: SelectedItem
   onSelect: (item: SelectedItem) => void
 }
 
-export function Sidebar({ selectedItem, onSelect }: Props) {
+export function Sidebar({ channels, selectedItem, onSelect }: Props) {
   const isSelected = (type: SelectedItem['type'], id: string) =>
     selectedItem.type === type && selectedItem.id === id
 

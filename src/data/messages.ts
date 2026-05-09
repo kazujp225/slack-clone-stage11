@@ -19,6 +19,7 @@ export type Message = {
   body: string
   createdAt: string
   reactions: { [emoji: string]: number }
+  imageUrl?: string | null
 }
 
 export const messages: Message[] = [
